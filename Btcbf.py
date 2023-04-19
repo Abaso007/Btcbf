@@ -6,7 +6,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import cpu_count
 
-if os.path.exists(os.getcwd()+"/cache.txt") == False:
+if os.path.exists(f"{os.getcwd()}/cache.txt") == False:
     open("cache.txt", "w+")
 
 class Btcbf():
@@ -34,7 +34,11 @@ class Btcbf():
                 if self.prev_n == 0:
                     self.prev_n = n
                 elapsed_t=cur_t-self.start_t
-                print("current n: "+str(n)+", current rate: "+str(abs(n-self.prev_n)//2)+"/s"+f", elapsed time: [{str(elapsed_t//3600)[:-2]}:{str(elapsed_t//60%60)[:-2]}:{int(elapsed_t%60)}], total: {n-self.start_r} ", end="\r")
+                print(
+                    f"current n: {str(n)}, current rate: {str(abs(n - self.prev_n) // 2)}/s"
+                    + f", elapsed time: [{str(elapsed_t // 3600)[:-2]}:{str(elapsed_t // 60 % 60)[:-2]}:{int(elapsed_t % 60)}], total: {n - self.start_r} ",
+                    end="\r",
+                )
                 self.prev_n = n
                 if self.seq:
                     open("cache.txt","w").write(f"{self.cur_n}-{self.start_r}-{self.end_n}")
@@ -44,27 +48,25 @@ class Btcbf():
         self.cur_n=n
         key = Key()
         if key.address in self.load_data.keys():
-                print("Wow matching address found!!")
-                print("Public Adress: "+key.address)
-                print("Private Key: "+key.to_wif())
-                f = open("foundkey.txt", "a") # the found privatekey and address saved to "foundkey.txt"
+            print("Wow matching address found!!")
+            print(f"Public Adress: {key.address}")
+            print(f"Private Key: {key.to_wif()}")
+            with open("foundkey.txt", "a") as f:
                 f.write(key.address+"\n")
                 f.write(key.to_wif()+"\n")
-                f.close()
-                sleep(510)
-                exit()
+            sleep(510)
+            exit()
             
     def sequential_brute(self, n):
         self.cur_n=n
         key = Key().from_int(n)
         if key.address in self.load_data.keys():
             print("Wow matching address found!!")
-            print("Public Adress: "+key.address)
-            print("Private Key: "+key.to_wif())
-            f = open("foundkey.txt", "a") # the found privatekey and address saved to "foundkey.txt"
-            f.write(key.address+"\n")
-            f.write(key.to_wif()+"\n")
-            f.close()
+            print(f"Public Adress: {key.address}")
+            print(f"Private Key: {key.to_wif()}")
+            with open("foundkey.txt", "a") as f:
+                f.write(key.address+"\n")
+                f.write(key.to_wif()+"\n")
             sleep(500)
             exit()
     
@@ -72,16 +74,17 @@ class Btcbf():
     def random_online_brute(self, n):
         self.cur_n = n
         key = Key()
-        the_page = requests.get("https://blockchain.info/q/getreceivedbyaddress/"+key.address+"/").text
+        the_page = requests.get(
+            f"https://blockchain.info/q/getreceivedbyaddress/{key.address}/"
+        ).text
         if int(the_page)>0:
             print(the_page)
             print("Wow active address found!!")
             print(key.address)
             print(key.to_wif())
-            f = open("foundkey.txt", "a") # the found privatekey and address saved to "foundkey.txt"
-            f.write(key.address+"\n")
-            f.write(key.to_wif()+"\n")
-            f.close()
+            with open("foundkey.txt", "a") as f:
+                f.write(key.address+"\n")
+                f.write(key.to_wif()+"\n")
             sleep(500)
             exit()
             
@@ -99,7 +102,7 @@ class Btcbf():
                 print(f"Hey you can't use {cores} number of cpu cores!!")
                 input("Press Enter to exit")
                 raise ValueError("negative number!")
-            elif cores > available_cores:
+            else:
                 print(f"\n You only have {available_cores} cores")
                 print(f" Are you sure you want to use {cores} cores?")
                 core_input = input("\n[y]es or [n]o>")
@@ -116,7 +119,7 @@ class Btcbf():
     def generate_random_address(self):
         key = Key()
         print("\n Public Address: "+key.address)
-        print(" Private Key: "+key.to_wif())
+        print(f" Private Key: {key.to_wif()}")
     
     def generate_address_fromKey(self):
         if self.privateKey != "":
